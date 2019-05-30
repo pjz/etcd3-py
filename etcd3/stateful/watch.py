@@ -241,7 +241,7 @@ class Watcher(object):
         self.callbacks.append((self.get_filter(filter), filter, cb))
 
     @check_param(at_least_one_of=['filter', 'cb'])
-    def unEvent(self, filter=None, cb=None): # noqa # ignore redefinition of filter
+    def unEvent(self, filtr=None, cb=None):
         """
         remove a callback or filter event that's been previously added via onEvent()
         If both parameters are given they are ANDd together; to OR the, make two calls.
@@ -250,13 +250,15 @@ class Watcher(object):
         :param filter: the callable filter or regex string or EventType the event to be removed was registerd with
         :param cb: the callback funtion the event to be removed was registerd with
         """
-        for i in reversed(range(len(self.callbacks))):
-            efilter, eraw_filter, ecb = self.callbacks[i]
+        mutable = self.callbacks[:]
+        for i in reversed(range(len(mutable))):
+            efilter, eraw_filter, ecb = mutable[i]
             if cb is not None and  ecb != cb:
                     continue
-            if filter is not None and filter not in (efilter, eraw_filter):
+            if filtr is not None and filtr not in (efilter, eraw_filter):
                     continue
-            del self.callbacks[i]
+            del mutable[i]
+        self.callbacks = mutable
 
     def dispatch_event(self, event):
         """
